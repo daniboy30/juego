@@ -1,11 +1,5 @@
 <script>
 import {Head, Link} from "@inertiajs/vue3";
-/*import { Head, Link } from '@inertiajs/vue3';
-
-defineProps({
-    canLogin: Boolean,
-    canRegister: Boolean,
-});*/
 export default {
     components:{
         Head,
@@ -20,7 +14,6 @@ export default {
         },
     }
 }
-
 </script>
 
 <template>
@@ -62,18 +55,17 @@ export default {
 
         <div class="absolute inset-0 flex flex-col justify-center items-center px-4 z-40">
             <h1 class="text-6xl sm:text-7xl font-bold drop-shadow-lg animate-pulse">
-                Batalla Naval
+                Ocean War
             </h1>
             <p class="mt-4 text-xl sm:text-2xl text-blue-200 drop-shadow">
-                ¡Destruye la flota enemiga y conquista los mares!
+                Crush the enemy fleet and dominate the seas!
             </p>
             <Link
                 :href="route('login')"
             >
-                <button type="button" class="glass-button"><span>Jugar ahora</span></button>
+                <button type="button" class="glass-button"><span>Play Now</span></button>
             </Link>
         </div>
-
     </div>
 </template>
 
