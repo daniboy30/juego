@@ -130,10 +130,13 @@ export default{
 </template>
 
 <style scoped>
-.text-glow-hover{
+.text-glow-hover {
     transition: 0.5s;
 }
 .text-glow-hover:hover {
-    text-shadow: 0 0 10px rgb(0, 255, 246), 0 0 20px rgb(38, 255, 223);
+    background: linear-gradient(-45deg, #005054, #04434f, #16585b, #059b8d);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    transition: 0.5s;
 }
 </style>

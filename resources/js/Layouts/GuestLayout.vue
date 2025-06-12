@@ -29,7 +29,7 @@ import { Link } from '@inertiajs/vue3';
     overflow: hidden;
     color: white;
     animation: gradientAnimation 10s ease infinite;
-    background: linear-gradient(-45deg, #2193b0, #6dd5ed, #1e3c72, #2a5298);
+    background: linear-gradient(-45deg, #005054, #04434f, #16585b, #059b8d);
     background-size: 400% 400%;
 }
 
