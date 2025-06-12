@@ -11,7 +11,7 @@ export default {
 
 <template>
     <Head title="Dashboard" />
-
+    
     <AuthenticatedLayout>
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">Welcome to Lobby {{$page.props.auth.user.name }}</h2>

@@ -11,7 +11,6 @@ export default {
         ArrowRightOnRectangleIcon,
     }
 }
-
 </script>
 
 <template>
