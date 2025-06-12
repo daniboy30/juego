@@ -1,17 +1,17 @@
-<script setup>
-import { ref } from 'vue';
-import ApplicationLogo from '@/Components/ApplicationLogo.vue';
-import Dropdown from '@/Components/Dropdown.vue';
-import DropdownLink from '@/Components/DropdownLink.vue';
-import NavLink from '@/Components/NavLink.vue';
-import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
+<script >
 import {HomeIcon} from "@heroicons/vue/24/outline";
-import { UserIcon, ArrowRightOnRectangleIcon } from "@heroicons/vue/24/outline";
+import {UserIcon, ArrowRightOnRectangleIcon} from "@heroicons/vue/24/outline";
 
+import {Link} from '@inertiajs/vue3';
+export default {
+    components: {
+        Link,
+        HomeIcon,
+        UserIcon,
+        ArrowRightOnRectangleIcon,
+    }
+}
 
-import { Link } from '@inertiajs/vue3';
-
-const showingNavigationDropdown = ref(false);
 </script>
 
 <template>
@@ -19,9 +19,8 @@ const showingNavigationDropdown = ref(false);
         <div class="overlay"></div>
         <div class="flex min-h-screen relative z-10">
             <div class="w-40 p-10 bg-white/5 text-white shadow-sm backdrop-blur-2xl">
-
                 <Link :href="route('dashboard')" class="block mb-6">
-                    <img src="../Images/logoBarco.png" alt="Logo" class="h-12 mx-auto" />
+                    <img src="../Images/logoBarco.png" alt="Logo" class="h-12 mx-auto"/>
                 </Link>
 
                 <Link
@@ -32,14 +31,14 @@ const showingNavigationDropdown = ref(false);
                     ]"
                     title="Lobby"
                 >
-                    <HomeIcon class="h-5 w-5" />
+                    <HomeIcon class="h-5 w-5"/>
                 </Link>
                 <Link
                     :href="route('profile.edit')"
                     class="w-20 h-20 mt-6 flex items-center justify-center rounded-full text-white shadow-lg backdrop-blur-md transition bg-white/10 hover:bg-white/20"
                     title="Profile"
                 >
-                    <UserIcon class="h-5 w-5" />
+                    <UserIcon class="h-5 w-5"/>
                 </Link>
                 <Link
                     :href="route('logout')"
@@ -48,7 +47,7 @@ const showingNavigationDropdown = ref(false);
                     class="w-20 h-20 mt-6 flex items-center justify-center rounded-full text-white shadow-lg backdrop-blur-md transition bg-white/10 hover:bg-white/20"
                     title="Log Out"
                 >
-                    <ArrowRightOnRectangleIcon class="h-5 w-5" />
+                    <ArrowRightOnRectangleIcon class="h-5 w-5"/>
                 </Link>
             </div>
 
@@ -56,12 +55,12 @@ const showingNavigationDropdown = ref(false);
             <div class="flex-1">
                 <header class="bg-white shadow" v-if="$slots.header">
                     <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                        <slot name="header" />
+                        <slot name="header"/>
                     </div>
                 </header>
 
                 <main>
-                    <slot />
+                    <slot/>
                 </main>
             </div>
         </div>
@@ -94,7 +93,7 @@ const showingNavigationDropdown = ref(false);
 .overlay {
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at center, rgba(255,255,255,0.05), rgba(0,0,0,0.6));
+    background: radial-gradient(circle at center, rgba(255, 255, 255, 0.05), rgba(0, 0, 0, 0.6));
     z-index: 1; /* Justo debajo del contenido */
 }
 </style>

@@ -1,7 +1,12 @@
-<script setup>
+<script>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
-import PrimaryButton from "@/Components/PrimaryButton.vue";
+export default {
+    components: {
+        Head,
+        AuthenticatedLayout,
+    }
+}
 </script>
 
 <template>
@@ -9,7 +14,7 @@ import PrimaryButton from "@/Components/PrimaryButton.vue";
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">Game Lobby</h2>
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">Welcome to Lobby {{$page.props.auth.user.name }}</h2>
 
             <button
                 class="mt-2 px-3 py-1 bg-black text-white text-sm rounded hover:bg-gray-700"
