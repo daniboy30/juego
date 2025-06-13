@@ -69,7 +69,7 @@ export default {
     </div>
 </template>
 
-<style>
+<style scoped>
 .animated-bg {
     width: 100vw;
     height: 150vh;
