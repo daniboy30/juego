@@ -1,23 +1,64 @@
 <script>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
+import axios from 'axios';
+import GameCard from '@/Components/ComponentsTarea/GameCard.vue';
+
 export default {
     components: {
+        GameCard,
         Head,
         AuthenticatedLayout,
-    }
-}
+    },
+    data() {
+        return {
+            games: [],
+            loading: false,
+            error: '',
+            polling: null,
+        };
+    },
+    mounted() {
+        this.fetchGames();
+        this.polling = setInterval(this.fetchGames, 10000);
+    },
+    beforeUnmount() {
+        clearInterval(this.polling);
+    },
+    methods: {
+        async fetchGames() {
+            try {
+                const response = await axios.get(route('games.index'));
+                this.games = response.data.games;
+            } catch (error) {
+                console.error('Error actualizando juegos:', error);
+            }
+        },
+        async createGame() {
+            this.loading = true;
+            this.error = '';
+            try {
+                const response = await axios.post(route('games.store'));
+                this.games.push(response.data.newGame);
+            } catch (e) {
+                console.error('Error al crear el juego', e);
+                this.error = 'Hubo un error al crear el juego.';
+            } finally {
+                this.loading = false;
+            }
+        },
+    },
+};
 </script>
-
 <template>
     <Head title="Dashboard" />
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="font-bold text-xl text-white leading-tight">Welcome to Lobby {{$page.props.auth.user.name }}</h2>
+            <h2 class="font-bold text-xl text-white leading-tight">Welcome {{$page.props.auth.user.name }}</h2>
 
-            <button class="glass-button text-white">
-                Create game
+            <button @click="createGame" class="glass-button text-white">
+                {{ loading ? 'Creando...' : 'Create game' }}
             </button>
         </template>
 
@@ -27,39 +68,15 @@ export default {
                     <h3 class="text-2xl font-bold text-white mb-6 text-center">Available Rooms</h3>
 
                     <div class="space-y-4">
-                        <div class="w-full border border-gray-300 rounded-lg p-4 shadow hover:shadow-lg transition flex flex-col sm:flex-row justify-between items-start sm:items-center">
-                            <div>
-                                <h4 class="text-xl font-semibold text-gray-700">Room #1</h4>
-                                <p class="text-sm text-gray-500">Created by: Juan</p>
-                                <p class="text-sm text-gray-600 font-semibold mt-1">Status: <span class="text-yellow-600">Waiting</span></p>
-                            </div>
-                            <button class="mt-4 sm:mt-0 bg-teal-700 hover:bg-teal-800 text-white text-sm px-4 py-2 rounded">
-                                Join Room
-                            </button>
-                        </div>
-
-                        <!-- Card de Sala -->
-                        <div class="w-full border border-gray-300 rounded-lg p-4 shadow hover:shadow-lg transition flex flex-col sm:flex-row justify-between items-start sm:items-center">
-                            <div>
-                                <h4 class="text-xl font-semibold text-gray-700">Room #2</h4>
-                                <p class="text-sm text-gray-500">Created by: María</p>
-                                <p class="text-sm text-gray-600 font-semibold mt-1">Status: <span class="text-green-600">Playing</span></p>
-                            </div>
-                            <button class="mt-4 sm:mt-0 bg-teal-700 hover:bg-teal-800 text-white text-sm px-4 py-2 rounded">
-                                Join Room
-                            </button>
-                        </div>
-
-                        <!-- Card de Sala -->
-                        <div class="w-full border border-gray-300 rounded-lg p-4 shadow hover:shadow-lg transition flex flex-col sm:flex-row justify-between items-start sm:items-center">
-                            <div>
-                                <h4 class="text-xl font-semibold text-gray-700">Room #3</h4>
-                                <p class="text-sm text-gray-500">Created by: Carlos</p>
-                                <p class="text-sm text-gray-600 font-semibold mt-1">Status: <span class="text-red-600">Finished</span></p>
-                            </div>
-                            <button class="mt-4 sm:mt-0 bg-teal-700 hover:bg-teal-800 text-white text-sm px-4 py-2 rounded">
-                                Join Room
-                            </button>
+                        <div v-if="games.length === 0">No hay juegos disponibles</div>
+                        <div v-else>
+                            <GameCard
+                                v-for="game in games"
+                                :key="game.id"
+                                :title="'Room #' + game.id"
+                                :creator="game.boards[0]?.user?.name || 'Desconocido'"
+                                :status="game.status"
+                            />
                         </div>
                     </div>
                 </div>

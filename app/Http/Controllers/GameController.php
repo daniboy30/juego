@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Board;
 use Illuminate\Http\Request;
 use App\Models\Game;
 use App\Services\BoardGenerator;
@@ -10,12 +11,10 @@ use Illuminate\Support\Facades\Auth;
 
 class GameController extends Controller
 {
-    protected $boardGenerator;
 
-    public function __construct(BoardGenerator $boardGenerator)
+    public function __construct()
     {
         $this->middleware('auth');
-        $this->boardGenerator = $boardGenerator;
     }
 
     //lista de los juegos
@@ -23,27 +22,57 @@ class GameController extends Controller
     {
         $user = Auth::user();
 
-        $games = Game::where('status', 'waiting')
+        $games = Game::with('boards.user')
+            ->where('status', 'waiting')
             ->orWhere(function($q) use ($user) {
                 $q->where('player_one_id', $user->id)
                     ->orWhere('player_two_id', $user->id);
             })
             ->get();
 
-        return Inertia::render('Games/Index', compact('games'));
+        return response()->json([
+            'games' => $games,
+        ]);
     }
 
     // se crea el nuevo juego y tambien el tablaro
     public function store(Request $request)
     {
         $user = Auth::user();
+
         $game = Game::create([
             'player_one_id' => $user->id,
-            'status'        => 'waiting',
+            'status' => 'waiting',
         ]);
-        // se crea el tablero
-        $this->boardGenerator->generate($user, $game);
-        return redirect()->route('games.show', $game);
+        $ships = $this->generateRandomShips();
+
+        Board::create([
+            'game_id' => $game->id,
+            'user_id' => $user->id,
+            'grid' => $ships,
+        ]);
+        $game->load('boards.user');;
+
+        return response()->json([
+            "message" => "Juego creado",
+            "newGame" => $game,
+        ]);
+    }
+
+    private function generateRandomShips()
+    {
+        $ships = [];
+        $positions = [];
+        while (count($ships) < 15) {
+            $row = chr(rand(65, 72)); // A-H
+            $col = rand(1, 8);
+            $pos = $row . $col;
+            if (!in_array($pos, $positions)) {
+                $ships[] = $pos;
+                $positions[] = $pos;
+            }
+        }
+        return $ships;
     }
 
     // muestra el detalle del game
@@ -66,8 +95,12 @@ class GameController extends Controller
             'player_two_id' => $user->id,
             'status' => 'playing',
         ]);
-        // Genera tablero para el segundo jugador
-        $this->boardGenerator->generate($user, $game);
+        $ships = $this->generateRandomShips();
+        Board::create([
+            'game_id' => $game->id,
+            'user_id' => $user->id,
+            'grid'    => $ships,
+        ]);
         return redirect()->route('games.show', $game);
     }
 
