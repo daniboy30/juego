@@ -12,6 +12,14 @@ export default {
         status: {
             type: String,
             default: 'waiting'
+        },
+        currentUserId: {
+            type: Number,
+            required: true
+        },
+        game: {
+            type: Object,
+            required: true
         }
     },
     computed: {
@@ -28,24 +36,38 @@ export default {
                 playing: 'Jugando',
                 finished: 'Finalizado'
             }[this.status] || this.status;
+        },
+        canJoin() {
+            // Obtener IDs de jugadores actuales
+            const playerIds = this.game.boards.map(b => b.user.id);
+            return (
+                this.status === 'waiting' &&
+                !playerIds.includes(this.currentUserId) &&
+                playerIds.length < 2
+            );
         }
     }
-}
+};
 </script>
 
 <template>
     <div class="w-full border border-gray-300 rounded-lg p-4 shadow hover:shadow-lg transition flex flex-col sm:flex-row justify-between items-start sm:items-center">
         <div>
             <h4 class="text-xl font-semibold text-gray-400">{{ title }}</h4>
-            <p class="text-sm text-gray-400">Created by: {{creator}}</p>
-            <p class="text-sm text-gray-400 font-semibold mt-1">Status: <span :class="statusColor">{{ statusText }}</span></p>
+            <p class="text-sm text-gray-400">Created by: {{ creator }}</p>
+            <p class="text-sm text-gray-400 font-semibold mt-1">
+                Status: <span :class="statusColor">{{ statusText }}</span>
+            </p>
         </div>
-        <button class="mt-4 sm:mt-0 bg-teal-700 hover:bg-teal-800 text-white text-sm px-4 py-2 rounded">
-            Unete
+        <button
+            @click="$emit('join', game.id)"
+            class="mt-2 px-4 py-2 bg-blue-500 text-white rounded disabled:opacity-50"
+            :disabled="!canJoin"
+        >
+            Unirse
         </button>
     </div>
 </template>
-
 <style scoped>
 
 </style>
