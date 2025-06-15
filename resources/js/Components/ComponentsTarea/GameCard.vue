@@ -38,7 +38,6 @@ export default {
             }[this.status] || this.status;
         },
         canJoin() {
-            // Obtener IDs de jugadores actuales
             const playerIds = this.game.boards.map(b => b.user.id);
             return (
                 this.status === 'waiting' &&

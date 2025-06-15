@@ -39,7 +39,11 @@ class MoveController extends Controller
             'y' => 'required|integer|between:0,7',
         ]);
 
-        // 4) Evitar disparo duplicado
+        // 4) Convertir coordenadas numéricas a posición tipo "A5"
+        $letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+        $pos = $letters[$data['x']] . ($data['y'] + 1);
+
+        // 5) Evitar disparo duplicado
         if ($game->moves()
             ->where('user_id', $user->id)
             ->where('x', $data['x'])
@@ -49,7 +53,7 @@ class MoveController extends Controller
             return redirect()->back()->with('error', 'Ya atacaste esa casilla.');
         }
 
-        // 5) Determinar hit/miss en el tablero del oponente
+        // 6) Buscar el tablero del oponente
         $opponentId = $user->id === $game->player_one_id
             ? $game->player_two_id
             : $game->player_one_id;
@@ -58,26 +62,56 @@ class MoveController extends Controller
             ->where('user_id', $opponentId)
             ->firstOrFail();
 
-        // grid es array bidimensional [8][8] con 1=barco, 0=agua
-        $cell = $opponentBoard->grid[$data['x']][$data['y']] ?? 0;
-        $hit = $cell === 1;
+        // 7) Determinar si es acierto
+        $grid = $opponentBoard->grid; // array tipo ["A1", "D3", ...]
+        $hit = in_array($pos, $grid);
 
-        // 6) Crear move con resultado
+        // 8) Registrar el movimiento
         $game->moves()->create([
             'user_id' => $user->id,
-            'x'       => $data['x'],
-            'y'       => $data['y'],
-            'result'  => $hit ? 'hit' : 'miss',
+            'x' => $data['x'],
+            'y' => $data['y'],
+            'result' => $hit ? 'hit' : 'miss',
         ]);
 
-        // 7) Alternar turno
+        // 9) Verificar si ganó (si acertó todos los barcos del oponente)
+        if ($hit) {
+            $hits = $game->moves()
+                ->where('user_id', $user->id)
+                ->where('result', 'hit')
+                ->get();
+
+            $hitPositions = $hits->map(function ($move) use ($letters) {
+                return $letters[$move->x] . ($move->y + 1);
+            })->toArray();
+
+            $remaining = array_diff($grid, $hitPositions);
+
+            if (count($remaining) === 0) {
+                $game->update([
+                    'status' => 'finished',
+                    'winner_id' => $user->id,
+                    'current_turn' => null,
+                ]);
+
+                return response()->json([
+                    'message' => '¡Has ganado la partida!',
+                    'result' => 'hit',
+                    'winner' => true,
+                ]);
+            }
+        }
         $nextTurn = $user->id === $game->player_one_id
             ? $game->player_two_id
             : $game->player_one_id;
+
         $game->update(['current_turn' => $nextTurn]);
 
-        // 8) Redirect Inertia al show del juego
-        return to_route('games.show', $game);
+        return response()->json([
+            'message' => 'Movimiento registrado correctamente.',
+            'result' => $hit ? 'hit' : 'miss',
+            'winner' => false,
+        ]);
     }
 
     /**

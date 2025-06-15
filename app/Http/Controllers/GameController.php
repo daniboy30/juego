@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Board;
+use App\Models\User;
 use Illuminate\Http\Request;
 use App\Models\Game;
 use Inertia\Inertia;
@@ -46,6 +47,7 @@ class GameController extends Controller
         $game = Game::create([
             'player_one_id' => $user->id,
             'status'        => 'waiting',
+            'current_turn'  => $user->id, // Primer turno es el de la persona que crea el juego
         ]);
 
         $ships = $this->generateRandomShips();
@@ -59,7 +61,7 @@ class GameController extends Controller
         // Carga relaciones para la vista
         $game->load(['boards.user', 'moves.user']);
 
-        return redirect()->route('games.show', $game);
+        return Inertia::location(route('games.show', $game));
     }
 
     /**
@@ -89,9 +91,17 @@ class GameController extends Controller
      */
     public function show(Game $game)
     {
-        $game->load('boards.user', 'moves.user');
+        $game->load(['boards.user', 'moves.user']);
 
         return Inertia::render('Games/Show', [
+            'game' => $game,
+        ]);
+    }
+    public function apiShow(Game $game)
+    {
+        $game->load('boards.user', 'moves.user');
+
+        return response()->json([
             'game' => $game,
         ]);
     }
@@ -105,34 +115,31 @@ class GameController extends Controller
         $user = $request->user();
         $game->load('boards');
 
-        // 1) No permitir que el creador se una
         if ($game->player_one_id === $user->id) {
-            return redirect()->back()->with('error', 'No puedes unirte a tu propio juego.');
+            return back()->with('error', 'No puedes unirte a tu propio juego.');
         }
 
-        // 2) No permitir más de 2 jugadores
         if ($game->player_two_id || $game->boards->count() >= 2) {
-            return redirect()->back()->with('error', 'Este juego ya está lleno.');
+            return back()->with('error', 'Este juego ya está lleno.');
         }
 
-        // 3) Actualizar el juego para asignar player_two y estado
         $game->update([
             'player_two_id' => $user->id,
             'status'        => 'playing',
         ]);
 
-        // 4) Todo bien: agregar tablero del segundo jugador
         $ships = $this->generateRandomShips();
+
         Board::create([
             'game_id' => $game->id,
             'user_id' => $user->id,
             'grid'    => $ships,
         ]);
 
-        // Redirige a la vista show de Inertia
-        return to_route('games.show', $game);
-    }
+        $game->load(['boards.user', 'moves.user']);
 
+        return Inertia::location(route('games.show', $game));
+    }
     public function destroy(Game $game)
     {
         $this->authorize('delete', $game);
@@ -143,5 +150,59 @@ class GameController extends Controller
         }
 
         return back()->with('error', 'No puedes eliminar un juego en curso.');
+    }
+
+    public function dataOnGamesPlayed(Request $request){
+        $user = Auth::user();
+        $games = Game::where(function($query) use ($user) {
+            $query->where('player_one_id', $user->id)
+                ->orWhere('player_two_id', $user->id);
+        })
+        ->Where('status', 'finished')
+        ->get();
+
+        $wins = $games->where('winner_id', $user->id)->count();
+        $loses = $games->where('winner_id', '!=', $user->id)->count();
+        return Inertia::render('Statistics', [
+            'wins' => $wins,
+            'losses' => $loses,
+        ]);
+    }
+
+    public function gamesByResult(Request $request){
+        $user = Auth::user();
+        $type = $request->query('type');
+
+        $query = Game::where(function ($q) use ($user) {
+            $q->where('player_one_id', $user->id)->orWhere('player_two_id', $user->id);
+        })->where('status', 'finished')->whereNotNull('winner_id');
+
+        if ($type === 'won') {
+            $query->where('winner_id', $user->id);
+        } elseif ($type === 'lost') {
+            $query->where('winner_id', '!=', $user->id);
+        } else {
+            return response()->json([
+                'error' => 'Tipo inválido. Usa "won" o "lost".'
+            ], 400);
+        }
+        $games = $query->get();
+
+        $results = $games->map(function ($game) use ($user) {
+            $isPlayerOne = $game->player_one_id == $user->id;
+            $opponentId = $isPlayerOne ? $game->player_two_id : $game->player_one_id;
+
+            $opponent = User::find($opponentId);
+
+            return [
+                'id' => $game->id,
+                'me' => $user->name,
+                'opponent' => optional($opponent)->name ?? 'Desconocido',
+            ];
+        });
+
+        return response()->json([
+            'results' => $results,
+        ]);
     }
 }

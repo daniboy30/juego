@@ -1,15 +1,20 @@
-<script >
-import {HomeIcon} from "@heroicons/vue/24/outline";
-import {UserIcon, ArrowRightOnRectangleIcon} from "@heroicons/vue/24/outline";
+<script>
+import { Link } from '@inertiajs/vue3'
+import { route } from 'ziggy-js'
+import { HomeIcon, UserIcon, ArrowRightOnRectangleIcon, ChartBarIcon} from "@heroicons/vue/24/outline";
 
-import {Link} from '@inertiajs/vue3';
 export default {
-    components: {
-        Link,
-        HomeIcon,
-        UserIcon,
-        ArrowRightOnRectangleIcon,
-    }
+  name: 'AuthenticatedLayout',
+  components: {
+      Link,
+      HomeIcon,
+      UserIcon,
+      ArrowRightOnRectangleIcon,
+      ChartBarIcon
+  },
+  methods: {
+    route // <-- Esto la expone al template
+  }
 }
 </script>
 
@@ -32,6 +37,18 @@ export default {
                 >
                     <HomeIcon class="h-5 w-5"/>
                 </Link>
+
+                <Link
+                    :href="route('games.played')"
+                    :class="[
+                        'w-20 h-20 mt-6 flex items-center justify-center rounded-full text-white shadow-lg backdrop-blur-md transition',
+                        route().current('games.played') ? 'bg-white/30' : 'bg-white/10 hover:bg-white/20'
+                    ]"
+                    title="Statistics"
+                >
+                    <ChartBarIcon class="h-5 w-5"/>
+                </Link>
+
                 <Link
                     :href="route('profile.edit')"
                     class="w-20 h-20 mt-6 flex items-center justify-center rounded-full text-white shadow-lg backdrop-blur-md transition bg-white/10 hover:bg-white/20"
@@ -58,8 +75,8 @@ export default {
                     </div>
                 </header>
 
-                <main>
-                    <slot/>
+                <main class="main-content">
+                    <slot />
                 </main>
             </div>
         </div>
@@ -94,5 +111,19 @@ export default {
     inset: 0;
     background: radial-gradient(circle at center, rgba(255, 255, 255, 0.05), rgba(0, 0, 0, 0.6));
     z-index: 1; /* Justo debajo del contenido */
+}
+.flex-1 {
+    display: flex;
+    flex-direction: column;
+    height: 100vh; /* altura total viewport */
+}
+
+header {
+    flex-shrink: 0;
+}
+
+.main-content {
+    flex-grow: 1;
+    overflow-y: auto;
 }
 </style>

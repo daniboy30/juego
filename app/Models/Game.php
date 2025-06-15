@@ -17,9 +17,9 @@ class Game extends Model
         'player_one_id',
         'player_two_id',
         'status',
+        'current_turn',
         'winner_id',
     ];
-
     /**
      * El usuario que creó la partida
      */

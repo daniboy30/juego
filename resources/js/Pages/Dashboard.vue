@@ -1,7 +1,91 @@
-<template>
-    <Head title="Dashboard" />
+<script>
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
+import { Head } from '@inertiajs/vue3'
+import { Inertia } from '@inertiajs/inertia'
+import axios from 'axios'
+import GameCard from '@/Components/ComponentsTarea/GameCard.vue'
 
+export default {
+    name: 'Dashboard',
+    components: {
+        AuthenticatedLayout,
+        Head,
+        GameCard,
+    },
+    data() {
+        return {
+            games: [],
+            loading: false,
+            error: '',
+            polling: null,
+        }
+    },
+    mounted() {
+        this.fetchGames()
+        this.polling = setInterval(this.fetchGames, 3000)
+    },
+    beforeUnmount() {
+        clearInterval(this.polling)
+    },
+    methods: {
+        async fetchGames() {
+            try {
+                const res = await axios.get(route('games.index'))
+                this.games = res.data.games
+            } catch (e) {
+                console.error(e)
+            }
+        },
+        async createGame() {
+            this.loading = true
+            this.error = ''
+
+            try {
+                await Inertia.visit(route('games.store'), {
+                    method: 'post',
+                    preserveState: false,
+                    preserveScroll: false,
+                })
+            } catch (e) {
+                console.error('Error al crear el juego:', e)
+                this.error = 'No se pudo crear el juego.'
+            } finally {
+                this.loading = false
+            }
+        },
+        async joinGame(gameId) {
+            this.loading = true
+            this.error = ''
+            const game = this.games.find(g => g.id === gameId)
+            const playerIds = game.boards.map(b => b.user.id)
+
+            try {
+                if (playerIds.includes(this.$page.props.auth.user.id)) {
+                    // Ya es parte del juego, redirige directamente al show
+                    await Inertia.visit(route('games.show', gameId))
+                } else {
+                    // No está en el juego, intenta unirse
+                    await Inertia.visit(route('games.update', gameId), {
+                        method: 'put',
+                        preserveState: false,
+                        preserveScroll: false,
+                    })
+                }
+            } catch (e) {
+                console.error('Error al unirse:', e)
+                this.error = e.response?.data?.message || 'No se pudo unir al juego.'
+            } finally {
+                this.loading = false
+            }
+        },
+    },
+}
+</script>
+
+<template>
     <AuthenticatedLayout>
+        <Head title="Dashboard" />
+
         <template #header>
             <h2 class="font-bold text-xl text-white leading-tight">
                 Welcome {{ $page.props.auth.user.name }}
@@ -40,69 +124,6 @@
     </AuthenticatedLayout>
 </template>
 
-<script>
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
-import { Head } from '@inertiajs/vue3'
-import { Inertia } from '@inertiajs/inertia'
-import axios from 'axios'
-import GameCard from '@/Components/ComponentsTarea/GameCard.vue'
-
-export default {
-    components: { AuthenticatedLayout, Head, GameCard },
-    data() {
-        return {
-            games: [],
-            loading: false,
-            error: '',
-            polling: null,
-        }
-    },
-    mounted() {
-        this.fetchGames()
-        this.polling = setInterval(this.fetchGames, 10000)
-    },
-    beforeUnmount() {
-        clearInterval(this.polling)
-    },
-    methods: {
-        async fetchGames() {
-            try {
-                const res = await axios.get(route('games.index'))
-                this.games = res.data.games
-            } catch (e) {
-                console.error(e)
-            }
-        },
-        async createGame() {
-            this.loading = true
-            this.error = ''
-
-            try {
-                await Inertia.post(route('games.store'))
-            } catch (e) {
-                console.error('Error al crear el juego:', e)
-                this.error = 'No se pudo crear el juego.'
-            } finally {
-                this.loading = false
-            }
-        },
-        async joinGame(gameId) {
-            this.loading = true
-            this.error = ''
-
-            try {
-                await Inertia.put(route('games.update', gameId))
-            } catch (e) {
-                console.error('Error al unirse:', e)
-                this.error = e.response?.data?.message || 'No se pudo unir al juego.'
-            } finally {
-                this.loading = false
-            }
-        },
-    },
-}
-</script>
-
 <style scoped>
 .glass-button {
     margin-top: 10px;
@@ -123,14 +144,12 @@ export default {
     transition: all 0.3s ease;
     overflow: hidden;
 }
-
 .glass-button:active {
     transform: scale(0.95) translateY(2px);
     box-shadow:
         inset 0 0 15px rgba(255, 255, 255, 0.4),
         0 4px 20px rgba(0, 0, 0, 0.5);
 }
-
 .glass-button::after {
     content: '';
     top: -50%;
@@ -148,7 +167,6 @@ export default {
     transition: opacity 0.3s;
     z-index: 2;
 }
-
 .glass-button:hover::after {
     animation: shine 1s forwards;
     opacity: 1;
