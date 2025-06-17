@@ -98,25 +98,24 @@ export default {
 
         <div class="py-12">
             <div class="max-w-4xl mx-auto px-4">
-                <div class="shadow-md sm:rounded-lg p-6">
-                    <h3 class="text-2xl font-bold text-white mb-6 text-center">
-                        Available Rooms
-                    </h3>
+                <h3 class="text-2xl font-bold text-white mb-6 text-center">
+                    Available Rooms
+                </h3>
 
-                    <div class="space-y-4">
-                        <div v-if="games.length === 0">No hay juegos disponibles</div>
-                        <div v-else>
-                            <GameCard
-                                v-for="game in games"
-                                :key="game.id"
-                                :title="`Juego #${game.id}`"
-                                :creator="game.boards[0]?.user.name ?? 'Desconocido'"
-                                :status="game.status"
-                                :current-user-id="$page.props.auth.user.id"
-                                :game="game"
-                                @join="joinGame"
-                            />
-                        </div>
+                <div class="space-y-4">
+                    <div v-if="games.length === 0">No hay juegos disponibles</div>
+                    <div v-else>
+                        <GameCard
+                            v-for="game in games"
+                            :key="game.id"
+                            :title="`Juego #${game.id}`"
+                            :creator="game.boards[0]?.user.name ?? 'Desconocido'"
+                            :status="game.status"
+                            :current-user-id="$page.props.auth.user.id"
+                            :game="game"
+                            @join="joinGame"
+                            @refresh="fetchGames"
+                        />
                     </div>
                 </div>
             </div>

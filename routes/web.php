@@ -39,6 +39,8 @@ Route::middleware('auth')->group(function () {
     // (Opcional) Eliminar partida
     Route::delete('/games/{game}', [GameController::class, 'destroy'])->name('games.destroy');
 
+    Route::post('/games/{game}/leave', [GameController::class, 'leave'])->name('games.leave');
+    Route::put('/games/{game}/cancel', [GameController::class, 'cancel'])->name('games.cancel');
 
     Route::get('/api/games-played', [GameController::class, 'dataOnGamesPlayed'])->name('games.played');
     Route::get('/api/games-played/results', [GameController::class, 'gamesByResult'])->name('games.results');

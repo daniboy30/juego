@@ -1,10 +1,10 @@
 <script>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
 import { Head } from '@inertiajs/vue3'
-import { Inertia } from '@inertiajs/inertia'
-import { route } from 'ziggy-js'
+import { ArrowLeftOnRectangleIcon } from '@heroicons/vue/24/outline'
 import axios from "axios";
 import Swal from "sweetalert2";
+import {route} from "ziggy-js";
 
 export default {
     data() {
@@ -30,6 +30,7 @@ export default {
     components: {
         Head,
         AuthenticatedLayout,
+        ArrowLeftOnRectangleIcon,
     },
     computed: {
         rows() {
@@ -143,11 +144,50 @@ export default {
                         };
                     }
                     await Swal.fire(swalOptions);
+                    window.location.href = route('dashboard');
                 }
             } catch (e) {
                 console.error(e)
             }
-        }
+        },
+        async leaveGame() {
+            const confirmed = await Swal.fire({
+                title: '¿Deseas abandonar la partida?',
+                text: 'El oponente será declarado como ganador.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#e74c3c',
+                cancelButtonColor: '#3498db',
+                confirmButtonText: 'Sí, salir',
+                cancelButtonText: 'Cancelar',
+                background: '#0b0e23',
+                color: '#fff',
+            });
+
+            if (confirmed.isConfirmed) {
+                try {
+                    const res = await axios.post(route('games.leave', this.gameData.id));
+                    await Swal.fire({
+                        title: 'Has salido de la partida',
+                        text: res.data.message,
+                        icon: 'info',
+                        confirmButtonText: 'Aceptar',
+                        background: '#0b0e23',
+                        color: '#fff',
+                    });
+                    window.location.href = route('dashboard');
+                } catch (e) {
+                    Swal.fire({
+                        title: 'Error',
+                        text: e.response?.data?.message || 'No se pudo abandonar la partida.',
+                        icon: 'error',
+                        confirmButtonText: 'Aceptar',
+                        background: '#0b0e23',
+                        color: '#fff',
+                    });
+                }
+            }
+        },
     }
 }
 </script>
@@ -222,6 +262,16 @@ export default {
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <div class="text-center mt-8">
+                <button
+                    @click="leaveGame"
+                    class="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition-all duration-200"
+                >
+                    <ArrowLeftOnRectangleIcon class="w-5 h-5" />
+                    Salir de la partida
+                </button>
             </div>
 
             <div class="max-w-4xl mx-auto">

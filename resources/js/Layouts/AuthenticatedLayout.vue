@@ -1,19 +1,25 @@
 <script>
 import { Link } from '@inertiajs/vue3'
 import { route } from 'ziggy-js'
-import { HomeIcon, UserIcon, ArrowRightOnRectangleIcon, ChartBarIcon} from "@heroicons/vue/24/outline";
+import { HomeIcon, UserIcon, ArrowRightOnRectangleIcon, ChartBarIcon, Bars3Icon} from "@heroicons/vue/24/outline";
 
 export default {
-  name: 'AuthenticatedLayout',
-  components: {
-      Link,
-      HomeIcon,
-      UserIcon,
-      ArrowRightOnRectangleIcon,
-      ChartBarIcon
-  },
+    name: 'AuthenticatedLayout',
+    data() {
+        return {
+            sidebarOpen: true
+        };
+    },
+    components: {
+        Link,
+        HomeIcon,
+        UserIcon,
+        ArrowRightOnRectangleIcon,
+        ChartBarIcon,
+        Bars3Icon,
+    },
   methods: {
-    route // <-- Esto la expone al template
+    route
   }
 }
 </script>
@@ -22,7 +28,11 @@ export default {
     <div class="app-layout">
         <div class="overlay"></div>
         <div class="flex min-h-screen relative z-10">
-            <div class="w-40 p-10 bg-white/5 text-white shadow-sm backdrop-blur-2xl">
+            <div
+                class="transition-all duration-300"
+                :class="sidebarOpen ? 'w-40 p-10' : 'w-0 p-0 overflow-hidden'"
+                style="background-color: rgba(255,255,255,0.05); backdrop-filter: blur(16px);"
+            >
                 <Link :href="route('dashboard')" class="block mb-6">
                     <img src="../Images/logoBarco.png" alt="Logo" class="h-12 mx-auto"/>
                 </Link>
@@ -67,11 +77,18 @@ export default {
                 </Link>
             </div>
 
-            <!-- Contenido principal -->
             <div class="flex-1">
+                <button
+                    @click="sidebarOpen = !sidebarOpen"
+                    class="m-4 p-2 text-white transition"
+                    title="Abrir/cerrar menú"
+                >
+                    <Bars3Icon class="w-6 h-6" />
+                </button>
+
                 <header class="bg-white/5 text-white shadow-sm backdrop-blur-2xl" v-if="$slots.header">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 ">
-                        <slot name="header"/>
+                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                        <slot name="header" />
                     </div>
                 </header>
 

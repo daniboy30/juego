@@ -96,7 +96,7 @@ const closeModal = () => {
 
 <style scoped>
 section {
-    background: linear-gradient(-45deg, #005054, #04434f, #16585b, #059b8d);
+    background: rgba(72, 111, 117, 0.26);
     padding: 2rem;
     border-radius: 0.75rem;
 }

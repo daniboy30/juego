@@ -1,5 +1,11 @@
 <script>
+import { ArrowRightOnRectangleIcon, XCircleIcon } from '@heroicons/vue/24/outline'
+
 export default {
+    components:{
+      ArrowRightOnRectangleIcon,
+        XCircleIcon,
+    },
     props: {
         title: {
             type: String,
@@ -44,6 +50,20 @@ export default {
                 !playerIds.includes(this.currentUserId) &&
                 playerIds.length < 2
             );
+        },
+        isCreator(){
+            const creatorId = this.game.boards[0]?.user.id;
+            return this.currentUserId === creatorId;
+        }
+    },
+    methods:{
+        async cancelGame(){
+            try {
+                await axios.put(route('games.cancel', this.game.id));
+                this.$emit('refresh');
+            } catch (e) {
+                console.error('Error al cancelar el juego:', e);
+            }
         }
     }
 };
@@ -58,13 +78,25 @@ export default {
                 Status: <span :class="statusColor">{{ statusText }}</span>
             </p>
         </div>
-        <button
-            @click="$emit('join', game.id)"
-            class="mt-2 px-4 py-2 bg-blue-500 text-white rounded disabled:opacity-50"
-            :disabled="!canJoin"
-        >
-            Unirse
-        </button>
+        <div class="flex gap-2 mt-2 sm:mt-0">
+            <button
+                @click="$emit('join', game.id)"
+                class="px-4 py-2 bg-blue-500 text-white rounded flex items-center gap-2 disabled:opacity-50"
+                :disabled="!canJoin"
+                title="Join"
+            >
+                <ArrowRightOnRectangleIcon class="w-5 h-5" />
+            </button>
+
+            <button
+                v-if="isCreator && status === 'waiting'"
+                @click="cancelGame"
+                title="Cancel"
+                class="px-4 py-2 bg-red-500 text-white rounded flex items-center gap-2"
+            >
+                <XCircleIcon class="w-5 h-5" />
+            </button>
+        </div>
     </div>
 </template>
 <style scoped>

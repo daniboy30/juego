@@ -21,20 +21,19 @@ defineProps({
 
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-                <div >
+                <div class="max-w-2xl mx-auto">
                     <UpdateProfileInformationForm
                         :must-verify-email="mustVerifyEmail"
                         :status="status"
-                        class="max-w-xl"
                     />
                 </div>
 
-                <div>
-                    <UpdatePasswordForm class="max-w-xl" />
+                <div class="max-w-2xl mx-auto">
+                    <UpdatePasswordForm />
                 </div>
 
-                <div>
-                    <DeleteUserForm class="max-w-xl" />
+                <div class="max-w-2xl mx-auto">
+                    <DeleteUserForm />
                 </div>
             </div>
         </div>

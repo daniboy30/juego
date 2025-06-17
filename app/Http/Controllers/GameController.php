@@ -24,10 +24,16 @@ class GameController extends Controller
         $user = Auth::user();
 
         $games = Game::with('boards.user')
-            ->where('status', 'waiting')
-            ->orWhere(function ($q) use ($user) {
-                $q->where('player_one_id', $user->id)
-                    ->orWhere('player_two_id', $user->id);
+            ->where('is_active', true)
+            ->where(function ($q) use ($user) {
+                $q->where('status', 'waiting') // aún esperando jugador
+                ->orWhere(function ($sub) use ($user) {
+                    $sub->whereIn('status', ['waiting', 'playing']) // solo si sigue activa o en juego
+                    ->where(function ($q2) use ($user) {
+                        $q2->where('player_one_id', $user->id)
+                            ->orWhere('player_two_id', $user->id);
+                    });
+                });
             })
             ->get();
 
@@ -140,6 +146,53 @@ class GameController extends Controller
 
         return Inertia::location(route('games.show', $game));
     }
+
+    public function leave(Request $request, Game $game){
+        $user = $request->user();
+
+        if ($user->id !== $game->player_one_id && $user->id !== $game->player_two_id) {
+            return response()->json(['message' => 'No participas en esta partida.'], 403);
+        }
+
+        if($game->status !== 'playing'){
+            return response()->json(['message' => 'El juego no está en curso.'], 400);
+        }
+
+        $opponentId = $user->id === $game->player_one_id
+            ? $game->player_two_id
+            : $game->player_one_id;
+        $game->update([
+            'status' => 'finished',
+            'winner_id' => $opponentId,
+            'current_turn' => null,
+        ]);
+
+        return response()->json(['message' => 'La partida ha finalizado.']);
+    }
+
+
+    public function cancel(Game $game){
+        $userId = Auth::id();
+        if ($game->boards->first()->user_id !== $userId) {
+            return back()->with('error', 'You are not the owner of this game.');
+        }
+
+        if ($game->player_two_id){
+            $game->update([
+                'winner_id' => $game->player_two_id,
+                'status' => 'finished',
+                'is_active' => false,
+            ]);
+        } else {
+            $game->update([
+                'status' => 'finished',
+                'is_active' => false,
+            ]);
+        }
+        return response()->json(['message' => 'The game has been cancelled.']);
+    }
+
+
     public function destroy(Game $game)
     {
         $this->authorize('delete', $game);
@@ -159,6 +212,7 @@ class GameController extends Controller
                 ->orWhere('player_two_id', $user->id);
         })
         ->Where('status', 'finished')
+        ->Where('is_active', true)
         ->get();
 
         $wins = $games->where('winner_id', $user->id)->count();
@@ -175,7 +229,7 @@ class GameController extends Controller
 
         $query = Game::where(function ($q) use ($user) {
             $q->where('player_one_id', $user->id)->orWhere('player_two_id', $user->id);
-        })->where('status', 'finished')->whereNotNull('winner_id');
+        })->where('status', 'finished')->Where('is_active', true)->whereNotNull('winner_id');
 
         if ($type === 'won') {
             $query->where('winner_id', $user->id);

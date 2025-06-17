@@ -40,6 +40,8 @@ export default {
     border-radius: 1rem;
     width: 90%;
     max-width: 900px;
+    max-height: 90vh; /* 👈 IMPORTANTE: altura máxima */
+    overflow-y: auto;  /* 👈 Scroll si se pasa del alto */
     box-shadow: 0 0 20px rgba(0,0,0,0.5);
 }
 .modal-header {

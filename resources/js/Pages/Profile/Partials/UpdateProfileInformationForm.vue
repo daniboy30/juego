@@ -81,7 +81,7 @@ const form = useForm({
             </div>
 
             <div class="flex items-center gap-4">
-                <PrimaryButton :disabled="form.processing" class="bg-gradient-to-r from-teal-600 via-teal-700 to-teal-800 hover:from-teal-500 hover:to-teal-600">
+                <PrimaryButton :disabled="form.processing">
                     Guardar
                 </PrimaryButton>
 
@@ -95,7 +95,7 @@ const form = useForm({
 
 <style scoped>
 section {
-    background: linear-gradient(-45deg, #005054, #04434f, #16585b, #059b8d);
+    background: rgba(72, 111, 117, 0.26);
     padding: 2rem;
     border-radius: 0.75rem;
 }
