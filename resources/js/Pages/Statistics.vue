@@ -29,8 +29,8 @@ export default {
     computed: {
         data() {
             return [
-                { label: 'Ganadas', value: this.wins, color: '#b2d6ff' },
-                { label: 'Perdidas', value: this.losses, color: '#ffbcec' },
+                { label: 'Wins', value: this.wins, color: '#b2d6ff' },
+                { label: 'Losses', value: this.losses, color: '#ffbcec' },
             ];
         },
         maxValue() {
@@ -52,7 +52,7 @@ export default {
                 console.log(res.data.results)
                 this.gamesList = res.data.results.length === 0 ? [] : res.data.results;
             } catch (e) {
-                console.error('Error al obtener las partidas:', e);
+                console.error('Error fetching games:', e);
             }
         },
         closeModal(){
@@ -67,9 +67,8 @@ export default {
                 this.selectedGame = res.data.game;
                 this.modalContent = 'board'
             } catch (e) {
-                console.error('Error al obtener la partida:', e);
+                console.error('Error fetching the game:', e);
             }
-
         },
     }
 }
@@ -78,7 +77,7 @@ export default {
 <template>
     <AuthenticatedLayout>
         <div class="chart-wrapper">
-            <h2 class="chart-title">Estadísticas de Partidas</h2>
+            <h2 class="chart-title">Game Statistics</h2>
             <div class="chart">
                 <div
                     v-for="item in data"
@@ -88,7 +87,7 @@ export default {
                         height: ((item.value / maxValue) * 100) + '%',
                         backgroundColor: item.color
                     }"
-                    @click="item.value !== 0 ? openModal(item.label === 'Ganadas' ? 'won' : 'lost') : null"
+                    @click="item.value !== 0 ? openModal(item.label === 'Wins' ? 'won' : 'lost') : null"
                 >
                     <span class="bar-value">{{ item.value }}</span>
                 </div>
@@ -106,7 +105,7 @@ export default {
 
         <StatisticsModal
             v-if="showModal"
-            :title="modalContent === 'table' ? (selectedType === 'won' ? 'Partidas Ganadas' : 'Partidas Perdidas') : 'Última jugada'"
+            :title="modalContent === 'table' ? (selectedType === 'won' ? 'Won Games' : 'Lost Games') : 'Last Move'"
             @close="closeModal"
         >
             <template v-if="modalContent === 'table'">
@@ -117,8 +116,6 @@ export default {
                 <GameBoard :game="selectedGame" @view="viewGame" />
             </template>
         </StatisticsModal>
-
-
     </AuthenticatedLayout>
 </template>
 

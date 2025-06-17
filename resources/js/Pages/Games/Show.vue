@@ -19,8 +19,8 @@ export default {
     },
     mounted() {
         this.polling = setInterval(this.fetchGame, 2000)
-        console.log('Turno actual (ID):', this.gameData.current_turn)
-        console.trace("Pila de error posible")
+        console.log('Current turn (ID):', this.gameData.current_turn)
+        console.trace("Possible error stack")
     },
     beforeUnmount() {
         clearInterval(this.polling)
@@ -103,9 +103,9 @@ export default {
                 if (newHit && myBoard.grid.includes(newHit)) {
                     Swal.fire({
                         icon: 'warning',
-                        title: '🔥 Has sido tocado',
-                        text: `¡Te dieron en la casilla ${newHit}!`,
-                        confirmButtonText: 'Aceptar',
+                        title: '🔥 You were hit',
+                        text: `¡They hit you at cell ${newHit}!`,
+                        confirmButtonText: 'Accept',
                         background: '#0b0e23',
                         color: '#fff',
                         iconColor: '#ff9a26',
@@ -123,9 +123,9 @@ export default {
                     if (newGame.winner_id === meId) {
                         swalOptions = {
                             icon: 'success',
-                            title: '🏆 ¡Has ganado!',
-                            text: 'Todos los barcos del oponente han sido destruidos.',
-                            confirmButtonText: 'Aceptar',
+                            title: '🏆 ¡You won!',
+                            text: 'All opponent ships have been destroyed.',
+                            confirmButtonText: 'Accept',
                             background: '#0b0e23',
                             color: '#fff',
                             iconColor: '#2ecc71',
@@ -136,8 +136,8 @@ export default {
                         swalOptions = {
                             icon: 'error',
                             title: '💀 Has perdido',
-                            text: 'El oponente destruyó todos tus barcos.',
-                            confirmButtonText: 'Aceptar',
+                            text: 'Your ships have been destroyed.',
+                            confirmButtonText: 'Accept',
                             background: '#0b0e23',
                             color: '#fff',
                             iconColor: '#e74c3c',
@@ -154,14 +154,14 @@ export default {
         },
         async leaveGame() {
             const confirmed = await Swal.fire({
-                title: '¿Deseas abandonar la partida?',
-                text: 'El oponente será declarado como ganador.',
+                title: 'Do you want to leave the game?',
+                text: 'The opponent will be declared the winner.',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#e74c3c',
                 cancelButtonColor: '#3498db',
-                confirmButtonText: 'Sí, salir',
-                cancelButtonText: 'Cancelar',
+                confirmButtonText: 'yes, leave it',
+                cancelButtonText: 'Cancel',
                 background: '#0b0e23',
                 color: '#fff',
             });
@@ -170,7 +170,7 @@ export default {
                 try {
                     const res = await axios.post(route('games.leave', this.gameData.id));
                     await Swal.fire({
-                        title: 'Has salido de la partida',
+                        title: 'you left the game.',
                         text: res.data.message,
                         icon: 'info',
                         confirmButtonText: 'Aceptar',
@@ -181,9 +181,9 @@ export default {
                 } catch (e) {
                     Swal.fire({
                         title: 'Error',
-                        text: e.response?.data?.message || 'No se pudo abandonar la partida.',
+                        text: e.response?.data?.message || 'Could not leave the game.',
                         icon: 'error',
-                        confirmButtonText: 'Aceptar',
+                        confirmButtonText: 'Accept',
                         background: '#0b0e23',
                         color: '#fff',
                     });
@@ -199,12 +199,12 @@ export default {
         <Head :title="`Game #${gameData.id}`" />
 
         <h2 class="text-2xl font-semibold text-white">
-            Partida #{{ gameData.id }}
+            Game #{{ gameData.id }}
         </h2>
 
         <div class="text-center text-white text-lg mb-4">
-            <span v-if="isMyTurn">Es tu turno</span>
-            <span v-else>No es tu turno</span>
+            <span v-if="isMyTurn">it's your turn</span>
+            <span v-else>Not your turn</span>
         </div>
         <div v-if="error" class="text-red-400 text-sm text-center mb-4">
             {{ error }}
@@ -276,7 +276,7 @@ export default {
                     class="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition-all duration-200"
                 >
                     <ArrowLeftOnRectangleIcon class="w-5 h-5" />
-                    Salir de la partida
+                    Leave game
                 </button>
             </div>
 
@@ -287,7 +287,7 @@ export default {
                         {{ move.user.name }} → {{ move.position }} — {{ move.result === 'hit' ? '¡Tocado!' : 'Agua' }}
                     </li>
                     <li v-if="gameData.moves.length === 0" class="text-gray-400">
-                        Aún no hay movimientos.
+                        no moves yet.
                     </li>
                 </ul>
             </div>

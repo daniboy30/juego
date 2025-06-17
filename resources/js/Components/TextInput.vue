@@ -1,19 +1,27 @@
-<script setup>
-import { onMounted, ref } from 'vue';
+<script>
+import { ref, onMounted } from 'vue';
 
-defineProps(['modelValue']);
+export default {
+    props: ['modelValue'],
+    emits: ['update:modelValue'],
+    setup(props, { emit, expose }) {
+        const input = ref(null);
 
-defineEmits(['update:modelValue']);
+        onMounted(() => {
+            if (input.value && input.value.hasAttribute('autofocus')) {
+                input.value.focus();
+            }
+        });
 
-const input = ref(null);
+        expose({
+            focus: () => input.value.focus(),
+        });
 
-onMounted(() => {
-    if (input.value.hasAttribute('autofocus')) {
-        input.value.focus();
-    }
-});
-
-defineExpose({ focus: () => input.value.focus() });
+        return {
+            input,
+        };
+    },
+};
 </script>
 
 <template>

@@ -1,51 +1,60 @@
-<script setup>
+<script>
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { useForm } from '@inertiajs/vue3';
-import { ref } from 'vue';
 
-const passwordInput = ref(null);
-const currentPasswordInput = ref(null);
-
-const form = useForm({
-    current_password: '',
-    password: '',
-    password_confirmation: '',
-});
-
-const updatePassword = () => {
-    form.put(route('password.update'), {
-        preserveScroll: true,
-        onSuccess: () => form.reset(),
-        onError: () => {
-            if (form.errors.password) {
-                form.reset('password', 'password_confirmation');
-                passwordInput.value.focus();
-            }
-            if (form.errors.current_password) {
-                form.reset('current_password');
-                currentPasswordInput.value.focus();
-            }
+export default {
+    components: {
+        InputError,
+        InputLabel,
+        PrimaryButton,
+        TextInput,
+    },
+    data() {
+        return {
+            form: useForm({
+                current_password: '',
+                password: '',
+                password_confirmation: '',
+            }),
+        };
+    },
+    methods: {
+        updatePassword() {
+            this.form.put(route('password.update'), {
+                preserveScroll: true,
+                onSuccess: () => this.form.reset(),
+                onError: () => {
+                    if (this.form.errors.password) {
+                        this.form.reset('password', 'password_confirmation');
+                        this.$refs.passwordInput.focus();
+                    }
+                    if (this.form.errors.current_password) {
+                        this.form.reset('current_password');
+                        this.$refs.currentPasswordInput.focus();
+                    }
+                },
+            });
         },
-    });
+    },
 };
 </script>
 
 <template>
     <section>
         <header>
-            <h2 class="text-lg font-semibold text-white">Actualizar contraseña</h2>
+            <h2 class="text-lg font-semibold text-white">Update Password</h2>
 
             <p class="mt-1 text-sm text-teal-200">
-                Usa una contraseña larga y segura para proteger tu cuenta.
+                Use a long, secure password to protect your account.
             </p>
         </header>
 
         <form @submit.prevent="updatePassword" class="mt-6 space-y-6">
             <div>
-                <InputLabel for="current_password" value="Contraseña actual" class="text-white" />
+                <InputLabel for="current_password" value="Current Password" class="text-white" />
 
                 <TextInput
                     id="current_password"
@@ -60,7 +69,7 @@ const updatePassword = () => {
             </div>
 
             <div>
-                <InputLabel for="password" value="Nueva contraseña" class="text-white" />
+                <InputLabel for="password" value="New Password" class="text-white" />
 
                 <TextInput
                     id="password"
@@ -75,7 +84,7 @@ const updatePassword = () => {
             </div>
 
             <div>
-                <InputLabel for="password_confirmation" value="Confirmar contraseña" class="text-white" />
+                <InputLabel for="password_confirmation" value="Confirm Password" class="text-white" />
 
                 <TextInput
                     id="password_confirmation"
@@ -90,11 +99,11 @@ const updatePassword = () => {
 
             <div class="flex items-center gap-4">
                 <PrimaryButton :disabled="form.processing">
-                    Guardar
+                    Save
                 </PrimaryButton>
 
                 <Transition enter-from-class="opacity-0" leave-to-class="opacity-0" class="transition ease-in-out">
-                    <p v-if="form.recentlySuccessful" class="text-sm text-green-300">Guardado.</p>
+                    <p v-if="form.recentlySuccessful" class="text-sm text-green-300">Saved.</p>
                 </Transition>
             </div>
         </form>

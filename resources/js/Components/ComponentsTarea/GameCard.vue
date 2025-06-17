@@ -3,7 +3,7 @@ import { ArrowRightOnRectangleIcon, XCircleIcon } from '@heroicons/vue/24/outlin
 
 export default {
     components:{
-      ArrowRightOnRectangleIcon,
+        ArrowRightOnRectangleIcon,
         XCircleIcon,
     },
     props: {
@@ -38,9 +38,9 @@ export default {
         },
         statusText() {
             return {
-                waiting: 'Esperando',
-                playing: 'Jugando',
-                finished: 'Finalizado'
+                waiting: 'Waiting',
+                playing: 'Playing',
+                finished: 'Finished'
             }[this.status] || this.status;
         },
         canJoin() {
@@ -62,7 +62,7 @@ export default {
                 await axios.put(route('games.cancel', this.game.id));
                 this.$emit('refresh');
             } catch (e) {
-                console.error('Error al cancelar el juego:', e);
+                console.error('Error cancelling the game:', e);
             }
         }
     }
@@ -99,6 +99,6 @@ export default {
         </div>
     </div>
 </template>
-<style scoped>
 
+<style scoped>
 </style>

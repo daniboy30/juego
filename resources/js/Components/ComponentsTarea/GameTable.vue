@@ -1,9 +1,14 @@
 <script>
+import { EyeIcon } from "@heroicons/vue/24/outline";
+
 export default {
     props: {
         games: Array
     },
-    emits: ['view']
+    emits: ['view'],
+    components: {
+        EyeIcon
+    }
 }
 </script>
 
@@ -11,9 +16,9 @@ export default {
     <table class="w-full text-white">
         <thead>
         <tr>
-            <th>Yo</th>
-            <th>Oponente</th>
-            <th>Detalle</th>
+            <th>Me</th>
+            <th>Opponent</th>
+            <th>Details</th>
         </tr>
         </thead>
         <tbody>
@@ -21,7 +26,9 @@ export default {
             <td>{{ game.me }}</td>
             <td>{{ game.opponent }}</td>
             <td>
-                <button @click="$emit('view', game)">👁️</button>
+                <button @click="$emit('view', game)">
+                    <EyeIcon class="h-5 w-5 text-white hover:text-blue-600" />
+                </button>
             </td>
         </tr>
         </tbody>

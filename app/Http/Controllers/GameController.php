@@ -205,18 +205,29 @@ class GameController extends Controller
         return back()->with('error', 'No puedes eliminar un juego en curso.');
     }
 
-    public function dataOnGamesPlayed(Request $request){
+    public function dataOnGamesPlayed(Request $request)
+    {
         $user = Auth::user();
-        $games = Game::where(function($query) use ($user) {
-            $query->where('player_one_id', $user->id)
+        $withWinner = $request->query('with_winner', true); // true por default
+
+        $query = Game::where(function ($q) use ($user) {
+            $q->where('player_one_id', $user->id)
                 ->orWhere('player_two_id', $user->id);
         })
-        ->Where('status', 'finished')
-        ->Where('is_active', true)
-        ->get();
+            ->where('status', 'finished')
+            ->where('is_active', true);
+
+        if ($withWinner) {
+            $query->whereNotNull('winner_id');
+        } else {
+            $query->whereNull('winner_id');
+        }
+
+        $games = $query->get();
 
         $wins = $games->where('winner_id', $user->id)->count();
         $loses = $games->where('winner_id', '!=', $user->id)->count();
+
         return Inertia::render('Statistics', [
             'wins' => $wins,
             'losses' => $loses,
