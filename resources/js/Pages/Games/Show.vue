@@ -213,7 +213,7 @@ export default {
         <div class="py-8 space-y-8">
             <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <h3 class="text-lg font-semibold text-white mb-4">Tu tablero</h3>
+                    <h3 class="text-lg font-semibold text-white mb-4">Your board</h3>
                     <div class="overflow-x-auto">
                         <div class="grid grid-cols-[40px_repeat(8,40px)]">
                             <div></div>
@@ -241,7 +241,7 @@ export default {
                 </div>
 
                 <div>
-                    <h3 class="text-lg font-semibold text-white mb-4">Tablero del oponente</h3>
+                    <h3 class="text-lg font-semibold text-white mb-4">Opponent's board</h3>
                     <div class="overflow-x-auto">
                         <div class="grid grid-cols-[40px_repeat(8,40px)]">
                             <div></div>
