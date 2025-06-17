@@ -208,7 +208,7 @@ class GameController extends Controller
     public function dataOnGamesPlayed(Request $request)
     {
         $user = Auth::user();
-        $withWinner = $request->query('with_winner', true); // true por default
+        $withWinner = $request->query('with_winner', true);
 
         $query = Game::where(function ($q) use ($user) {
             $q->where('player_one_id', $user->id)

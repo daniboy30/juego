@@ -31,7 +31,5 @@ class BoardController extends Controller
         ]);
     }
 
-    // No definimos store/update aquí ya que los tableros
-    // se generan automáticamente al crear o unirse a un juego
-    // dentro de GameController usando BoardGenerator.
+
 }
