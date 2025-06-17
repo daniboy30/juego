@@ -61,10 +61,8 @@ export default {
 
             try {
                 if (playerIds.includes(this.$page.props.auth.user.id)) {
-                    // Ya es parte del juego, redirige directamente al show
                     await Inertia.visit(route('games.show', gameId))
                 } else {
-                    // No está en el juego, intenta unirse
                     await Inertia.visit(route('games.update', gameId), {
                         method: 'put',
                         preserveState: false,
@@ -92,7 +90,7 @@ export default {
             </h2>
 
             <button @click="createGame" class="glass-button text-white">
-                {{ loading ? 'Creando...' : 'Create game' }}
+                {{ loading ? 'Creating...' : 'Create game' }}
             </button>
         </template>
 
@@ -103,7 +101,7 @@ export default {
                 </h3>
 
                 <div class="space-y-4">
-                    <div v-if="games.length === 0">No hay juegos disponibles</div>
+                    <div v-if="games.length === 0">No games available</div>
                     <div v-else>
                         <GameCard
                             v-for="game in games"

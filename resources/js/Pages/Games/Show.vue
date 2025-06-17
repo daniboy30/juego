@@ -281,7 +281,7 @@ export default {
             </div>
 
             <div class="max-w-4xl mx-auto">
-                <h3 class="text-lg font-semibold text-white mb-2">Movimientos</h3>
+                <h3 class="text-lg font-semibold text-white mb-2">Movements</h3>
                 <ul class="list-disc list-inside text-white">
                     <li v-for="move in gameData.moves" :key="move.id">
                         {{ move.user.name }} → {{ move.position }} — {{ move.result === 'hit' ? '¡Tocado!' : 'Agua' }}
