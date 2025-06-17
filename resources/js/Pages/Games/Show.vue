@@ -13,7 +13,8 @@ export default {
             error: '',
             gameData: JSON.parse(JSON.stringify(this.game)),
             polling: null,
-            redirecting: false
+            redirecting: false,
+            myHitsReceived: [],
         }
     },
     mounted() {
@@ -91,6 +92,7 @@ export default {
                     const row = ['A','B','C','D','E','F','G','H'][m.x]
                     return row + (m.y + 1)
                 })
+                this.myHitsReceived = myHitsNow;
                 const prevHits = this.gameData.moves.filter(m => m.result === 'hit' && m.user_id !== meId)
                 const prevHitsNow = prevHits.map(m => {
                     const row = ['A','B','C','D','E','F','G','H'][m.x]
@@ -225,9 +227,13 @@ export default {
                                     v-for="col in cols"
                                     :key="row + col"
                                     @click="isMyTurn ? shootAt(row, col) : null"
-                                    class="w-10 h-10 border border-gray-500 bg-blue-100 hover:bg-blue-200 transition-all duration-200 flex items-center justify-center"
+                                    :class="[
+                                        'w-10 h-10 border border-gray-500 transition-all duration-200 flex items-center justify-center',
+                                        myHitsReceived.includes(row + col) ? 'bg-red-500 text-white' : 'bg-white text-black'
+                                    ]"
                                 >
-                                    <span v-if="myGrid.includes(row + col)" class="text-blue-700 text-xl">🚢</span>
+                                    <span v-if="myGrid.includes(row + col)">🚢</span>
+                                    <span v-if="myHitsReceived.includes(row + col)">🔥</span>
                                 </div>
                             </template>
                         </div>
